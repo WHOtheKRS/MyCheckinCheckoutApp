@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Employee Registration</h2>
+
+        <form id="registerForm" method="POST">
+            <label for="employee_id">Employee ID:</label>
+            <input type="text" name="employee_id" required>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+
+            <button type="button" onclick="startCamera()">Start Camera</button>
+            <video id="video" width="250" height="200" autoplay></video>
+            <button type="button" id="captureBtn" onclick="captureImage()" disabled>Capture Image</button>
+
+            <canvas id="canvas" style="display:none;"></canvas>
+            <div id="previewContainer"></div>
+
+            <input type="hidden" name="captured_image" id="captured_image">
+            <button type="submit" id="registerBtn" disabled>Register</button>
+        </form>
+
+        <p><a href="{{ url_for('login') }}">Login if already registered</a></p>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let capturedImageInput = document.getElementById('captured_image');
+        let captureBtn = document.getElementById('captureBtn');
+        let registerBtn = document.getElementById('registerBtn');
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    captureBtn.disabled = false;
+                })
+                .catch(err => {
+                    console.error("Error accessing camera: ", err);
+                });
+        }
+
+        function captureImage() {
+            let context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            let imageData = canvas.toDataURL('image/jpeg', 0.6);
+            capturedImageInput.value = imageData;
+
+            let imgPreview = document.createElement("img");
+            imgPreview.src = imageData;
+            imgPreview.width = 150;
+            imgPreview.height = 150;
+
+            let previewContainer = document.getElementById("previewContainer");
+            previewContainer.innerHTML = "";
+            previewContainer.appendChild(imgPreview);
+
+            registerBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
