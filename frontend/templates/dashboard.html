@@ -3,13 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>HR Dashboard - Employee Registration</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
-        <h2>Admin Dashboard</h2>
-        <a href="/checkin">Go to Check-in</a>
+        <h2>HR Dashboard - Register Employee</h2>
+        <form method="POST">
+            <div class="form-group">
+                <input type="text" name="first_name" placeholder="First Name" required>
+                <input type="text" name="last_name" placeholder="Last Name" required>
+            </div>
+            <div class="form-group">
+                <select name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <input type="text" name="contact" placeholder="Contact Number">
+                <input type="date" name="birth_date" placeholder="Birthday" required>
+                <input type="text" name="father_name" placeholder="Father Name">
+                <input type="text" name="mother_name" placeholder="Mother Name">
+                <input type="text" name="guardian_contact" placeholder="Guardian Contact Number">
+                <input type="number" name="age" placeholder="Age" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="text" name="address" placeholder="Permanent Address" required>
+                <input type="text" name="skills" placeholder="Skills (comma separated)">
+                <input type="text" name="blood_group" placeholder="Blood Group">
+                <input type="date" name="joining_date" placeholder="Joining Date" required>
+                <input type="text" name="aadhar" placeholder="Aadhar Card" required>
+                <input type="text" name="pan" placeholder="PAN Card" required>
+            </div>
+
+            <!-- Camera Section -->
+            <div class="camera-container">
+                <button type="button" id="startCamera">Start Camera</button>
+                <video id="video" width="300" height="250" autoplay style="display:none;"></video>
+                <button type="button" id="captureBtn" style="display:none;">Capture Image</button>
+            </div>
+
+            <!-- Captured Image Preview -->
+            <div id="previewContainer" style="display:none;">
+                <p>Captured Image:</p>
+                <img id="capturedImage" src="" alt="Captured Image">
+            </div>
+
+            <input type="hidden" name="captured_image" id="captured_image">
+
+            <button type="submit">Register Employee</button>
+        </form>
+
+        <button onclick="window.location.href='/logout'">Logout</button>
     </div>
+
+    <script>
+        let video = document.getElementById("video");
+        let startCameraBtn = document.getElementById("startCamera");
+        let captureBtn = document.getElementById("captureBtn");
+        let capturedImage = document.getElementById("capturedImage");
+        let previewContainer = document.getElementById("previewContainer");
+        let capturedImageInput = document.getElementById("captured_image");
+        let cameraStream = null;
+
+        startCameraBtn.addEventListener("click", function() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    cameraStream = stream;
+                    video.style.display = "block";
+                    captureBtn.style.display = "block";
+                    startCameraBtn.style.display = "none";
+                })
+                .catch(error => console.error("Error accessing camera: ", error));
+        });
+
+        captureBtn.addEventListener("click", function() {
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+
+            // Resize image to 50% to reduce size
+            canvas.width = video.videoWidth / 2;
+            canvas.height = video.videoHeight / 2;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to JPEG & Compress to 60% quality
+            let imageDataUrl = canvas.toDataURL("image/jpeg", 0.6);
+
+            // Display Preview
+            capturedImage.src = imageDataUrl;
+            capturedImageInput.value = imageDataUrl;
+            previewContainer.style.display = "block";
+
+            if (cameraStream) {
+                let tracks = cameraStream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+                video.style.display = "none";
+                captureBtn.style.display = "none";
+                startCameraBtn.style.display = "block";
+            }
+        });
+    </script>
+
 </body>
 </html>
