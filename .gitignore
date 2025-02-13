@@ -1,6 +1,3 @@
-face_data
-venv
-
 # Ignore virtual environment
 venv/
 env/
@@ -37,3 +34,8 @@ Thumbs.db
 # Ignore IDE and editor settings
 .vscode/
 .idea/
+
+# Ignore large model files
+*.dll
+*.pyd
+*.dat
