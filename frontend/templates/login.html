@@ -16,8 +16,28 @@
             <button type="submit">Login</button>
         </form>
 
-        <!-- New Employee Button -->
         <button onclick="window.location.href='/employee_check'">Employee</button>
+
+        <div id="errorContainer" style="display: none; text-align: center;">
+            <img src="{{ url_for('static', filename='error.gif') }}" alt="Error GIF" width="150">
+            <p style="color: red;">Invalid Credentials! Try again.</p>
+        </div>
     </div>
+
+    <script>
+        // Convert Flask boolean to JavaScript boolean (1 -> true, 0 -> false)
+        var showError = {{ 1 if error else 0 }};
+    
+        if (showError) {
+            let errorDiv = document.getElementById("errorContainer");
+            errorDiv.style.display = "block"; 
+    
+            setTimeout(() => {
+                errorDiv.style.display = "none";
+            }, 2000);
+        }
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+
 </body>
 </html>

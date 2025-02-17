@@ -1,9 +1,5 @@
-FirstName,LastName,Gender,Contact,FatherName,MotherName,GaurdianName,Age,Emailaddress,Address,Skills,Bloodgroup,
-Modi,Gandu,Male,456789567,Rahul,Mamta,,22,abc@gmail.com,ffesvevew,,,2000-09-21,324143141441,41431414133
-test,user,Male,71381981,master,,3141431,21,kaushal21sep@gmail.com,vsvksjvbskjvs,,,2000-09-21,349128343141,4243144114
+FirstName,LastName,Gender,Contact,Birthdate,FatherName,MotherName,GaurdianName,Age,Emailaddress,Address,Skills,Bloodgroup
+
 parth,sharma,Female,9414313121,ABC,abc,32431411,25,parth@gmail.com,111/11 jaipur,,o,1999-01-21,3214141414,4314141341
 Saurabh,Bhat,Female,71381981,Mmaster,gogo,231141,23,saurabh@gmail.com,11/1 jaipur,,AB,2000-12-12,32142131,32114141
-jatin,kumawat,Male,r5235225,ABC,abc,41414141,24,abc@gmail.com,111/1,,ab,2025-02-12,32141214,414141
-Kaushal,Raj,Male,23141241,Prem,Samita,321314141,24,abc@gmail.com,101/3,,AB,2000-09-21,1431414141,431414364662
-Ankit,Sharma,Male,3131414,Abc,abc,314134141,24,abc@gmail.com,11/1,,AA,1999-12-21,4134314,4141314
-
+Kaushal Raj ,Saini,Male,71381981,2025-02-06,,gogo,3141431,33,abc@gmail.com,vsvksjvbskjvs,,AB,2025-02-27,32142131,32114141

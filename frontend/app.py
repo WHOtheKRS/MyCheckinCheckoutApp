@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, send_from_directory
 import csv
 import os
 import base64
@@ -8,11 +8,11 @@ import re
 import requests
 from datetime import datetime
 from deepface import DeepFace
-from backend.auth import authenticate, verify_face_match
 from backend.register import save_employee_data
+from backend.face_recognition import recognize_employee
 
 app = Flask(__name__)
-
+app = Flask(__name__, static_folder="static", template_folder="templates")
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.secret_key = os.urandom(24)
 
@@ -34,16 +34,23 @@ if not os.path.exists("frontend/static"):
 def sanitize_filename(email):
     return re.sub(r'[^\w\-_]', '_', email) + ".jpg"
 
-from flask import send_from_directory
+
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory("static", "manifest.json")
+
+@app.route("/service-worker.js")
+def service_worker():
+    return send_from_directory("static", "service-worker.js", mimetype="application/javascript")
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory("frontend/static", "favicon.ico", mimetype="image/vnd.microsoft.icon")
+    return send_from_directory("static", "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
 
 def speak_message(text):
     try:
-        url = "https://api.elevenlabs.io/v1/text-to-speech/tnSpp4vdxKPjI9w0GnoV"
+        url = "https://api.elevenlabs.io/v1/text-to-speech/i4CzbCVWoqvD0P1QJCUL"
         headers = {
             "xi-api-key": ELEVEN_LABS_API_KEY,
             "Content-Type": "application/json"
@@ -52,8 +59,8 @@ def speak_message(text):
             "text": text,
             "model_id": "eleven_multilingual_v2",
             "stability": 0.5,
-            "similarity_boost": 0.5,
-            "style": 0.5,
+            "similarity_boost": 0.7,
+            "style": 0.8,
             "use_speaker_boost": True
         }
 
@@ -67,16 +74,14 @@ def speak_message(text):
                 f.write(response.content)
 
             print(f"Speech generated and saved at: {speech_path}")
-            return url_for('static', filename='speech.mp3')  # Correct path for frontend
+            return url_for('static', filename='speech.mp3')  
 
         else:
             print("❌ Error generating speech:", response.json())
             return None
     except Exception as e:
-        print("❌ Eleven Labs API Error:", e)
+        print("Eleven Labs API Error:", e)
         return None
-
-
 
 @app.route("/employee_check", methods=["GET", "POST"])
 def employee_check():
@@ -98,7 +103,7 @@ def employee_check():
             employee_id = recognize_employee(image_data)
 
             if employee_id:
-                first_name = employee_id.split(" ")[0]  # Extract first name
+                first_name = employee_id.split(" ")[0]  
                 last_action = get_last_action(employee_id)
                 action = "checkout" if last_action == "checkin" else "checkin"
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -107,7 +112,6 @@ def employee_check():
                     writer = csv.writer(file)
                     writer.writerow([employee_id, action, timestamp])
 
-                # Generate personalized speech message
                 if action == "checkin":
                     speech_text = f"Hey thanks for checking in! Have a nice day!"
                 else:
@@ -128,6 +132,8 @@ def employee_check():
 
 @app.route("/", methods=["GET", "POST"])
 def login():
+    error = False  
+
     if request.method == "POST":
         employee_id = request.form["employee_id"]
         password = request.form["password"]
@@ -135,45 +141,10 @@ def login():
         if employee_id == "hr@softshala" and password == "softshala":
             session["role"] = "hr"
             return redirect(url_for("dashboard"))
+        
+        error = True  
 
-        elif authenticate(employee_id, password):
-            session["employee_id"] = employee_id
-            return redirect(url_for("employee_check"))
-
-        return "Invalid credentials!", 401
-
-    return render_template("login.html")
-
-
-def recognize_employee(image_data):
-    try:
-        image_data = image_data.split(",")[1]  # Remove header
-        image_bytes = base64.b64decode(image_data)
-        np_image = np.frombuffer(image_bytes, dtype=np.uint8)
-        captured_img = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
-
-        for filename in os.listdir(FACE_DATA_FOLDER):
-            stored_img_path = os.path.join(FACE_DATA_FOLDER, filename)
-
-            try:
-                result = DeepFace.verify(
-                    img1_path=captured_img,
-                    img2_path=stored_img_path,
-                    model_name="Facenet",
-                    enforce_detection=False
-                )
-
-                if result["verified"]:
-                    return os.path.splitext(filename)[0]  # Return employee ID
-
-            except Exception as e:
-                print("DeepFace Error:", e)
-
-    except Exception as e:
-        print("Error Processing Image:", e)
-
-    return None
-
+    return render_template("login.html", error=error)
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
@@ -189,31 +160,32 @@ def dashboard():
             "Birthday": request.form["birth_date"],
             "Father Name": request.form["father_name"],
             "Mother Name": request.form["mother_name"],
-            "Guardian Contact": request.form["guardian_contact"],
             "Age": request.form["age"],
             "Email": request.form["email"],
             "Permanent Address": request.form["address"],
-            "Skills": request.form["skills"],
             "Blood Group": request.form["blood_group"],
             "Joining Date": request.form["joining_date"],
             "Aadhar Card": request.form["aadhar"],
             "PAN Card": request.form["pan"],
         }
 
-        image_data = request.form["captured_image"]
-        sanitized_filename = sanitize_filename(employee_data["Email"])
-        image_path = os.path.join(FACE_DATA_FOLDER, sanitized_filename)
-        save_base64_image(image_data, image_path)
+        image_data = request.form.get("captured_image", "") 
+        uploaded_file = request.files.get("uploaded_image")  
 
-        save_employee_data(employee_data)
-        return redirect(url_for("dashboard"))
+        if not image_data and not uploaded_file:
+            return jsonify({"message": "Error: Please provide an image (capture or upload)."}), 400
+
+        # `save_employee_data()` from `register.py`
+        save_employee_data(employee_data, uploaded_file if uploaded_file else None)
+
+        return jsonify({"message": "Employee registered successfully!"}), 200
 
     return render_template("dashboard.html")
 
 
 def save_base64_image(image_data, file_path):
     try:
-        image_data = image_data.split(",")[1]  # Remove header
+        image_data = image_data.split(",")[1]  
         image_bytes = base64.b64decode(image_data)
         image_array = np.frombuffer(image_bytes, dtype=np.uint8)
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
@@ -231,7 +203,7 @@ def get_last_action(employee_id):
             rows = list(reader)
             for row in reversed(rows):
                 if row[0] == employee_id:
-                    return row[1]  # Return last action
+                    return row[1] 
     except FileNotFoundError:
         return None
     return None
