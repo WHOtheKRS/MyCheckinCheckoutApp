@@ -35,8 +35,6 @@ self.addEventListener("activate", (event) => {
         })
     );
 });
-
-
 // Speeds up page load times by serving cached files.
 // Works offline (cached assets load even without internet).
 // Automatically updates when a new version is deployed.

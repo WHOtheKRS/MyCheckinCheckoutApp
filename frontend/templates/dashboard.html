@@ -83,6 +83,7 @@
 
         let cameraStream = null;
 
+        
         startCameraBtn.addEventListener("click", function () {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
@@ -95,24 +96,26 @@
                 .catch(error => console.error("Error accessing camera: ", error));
         });
 
+        
         captureBtn.addEventListener("click", function () {
             let canvas = document.createElement("canvas");
             let ctx = canvas.getContext("2d");
-        
-            canvas.width = video.videoWidth / 2;
-            canvas.height = video.videoHeight / 2;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-            let imageDataUrl = canvas.toDataURL("image/jpeg", 0.6);
-        
-            // Remove any previously uploaded image
-            fileInput.value = "";  
-        
-            // Display the captured image preview
+
+            let imageDataUrl = canvas.toDataURL("image/jpeg", 0.7);  
+
+            
+            fileInput.value = "";
+
+            
             capturedImage.src = imageDataUrl;
-            capturedImageInput.value = imageDataUrl;
+            capturedImageInput.value = imageDataUrl;  
             previewContainer.style.display = "block";
-        
+
+            
             if (cameraStream) {
                 let tracks = cameraStream.getTracks();
                 tracks.forEach(track => track.stop());
@@ -123,10 +126,10 @@
             }
         });
 
-        // Handle Image Upload & Show Preview
+        
         fileInput.addEventListener("change", function (event) {
             let file = event.target.files[0];
-        
+
             if (file) {
                 let reader = new FileReader();
                 reader.onload = function (e) {
@@ -138,35 +141,42 @@
             }
         });
 
-        // Handle Form Submission with Image Check
+        
         registerForm.addEventListener("submit", function (event) {
             event.preventDefault();
-        
+
             let emailInput = document.querySelector("input[name='email']").value.trim();
-        
+            let formData = new FormData(registerForm);
+
+            
             if (!capturedImageInput.value && !fileInput.files.length) {
-                alert("Error: Please either capture or upload an image before registering the employee.");
+                alert("Error: Please capture or upload an image before registering.");
                 return;
             }
-        
-            let formData = new FormData(registerForm);
-        
+
+            
+            if (capturedImageInput.value) {
+                formData.append("captured_image", capturedImageInput.value);
+            }
+
+            
             if (fileInput.files.length > 0) {
                 let file = fileInput.files[0];
                 formData.append("uploaded_image", file, emailInput + ".jpg");
             }
-        
+
+            
             registerForm.style.display = "none";
             successMessage.style.display = "block";
-        
+
+            
             fetch("/dashboard", {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json()) 
+            .then(response => response.json())
             .then(data => {
                 console.log("Registration Successful:", data);
-            
                 setTimeout(() => {
                     location.reload();
                 }, 3000);
@@ -174,5 +184,6 @@
             .catch(error => console.error("Error registering employee:", error));
         });
     </script>
+
 </body>
 </html>

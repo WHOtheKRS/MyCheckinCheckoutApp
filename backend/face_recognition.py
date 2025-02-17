@@ -2,38 +2,47 @@ import os
 import base64
 import cv2
 import numpy as np
-import re
 from deepface import DeepFace
 
 FACE_DATA_FOLDER = "face_data"
 
-def save_uploaded_image(image_data):
+def save_uploaded_image(image_data, filename=None):
     try:
-        
-        if isinstance(image_data, str) and image_data.startswith("data:image"):
-            image_bytes = base64.b64decode(image_data.split(",")[1])
-            temp_image_path = "temp_image.jpg" 
-
-        
-        elif hasattr(image_data, "filename"):  
-            temp_image_path = os.path.join("face_data", image_data.filename)
-            image_data.save(temp_image_path)  
-            print(f"Uploaded image saved successfully: {temp_image_path}")
-            return temp_image_path  
-
-        else:
-            print("❌ Error: Invalid image format provided.")
+        if not image_data:
+            print("Error: No image data provided.")
             return None
 
-        with open(temp_image_path, "wb") as f:
-            f.write(image_bytes)
+        if isinstance(image_data, str) and image_data.startswith("data:image"):
+            #  Base64 image (Captured from Camera)
+            image_bytes = base64.b64decode(image_data.split(",")[1])
+            if not filename:
+                filename = "temp_image.jpg"
+            image_path = os.path.join(FACE_DATA_FOLDER, filename)
 
-        print(f"Captured image saved successfully: {temp_image_path}")
-        return temp_image_path
+            with open(image_path, "wb") as f:
+                f.write(image_bytes)
+
+            print(f"Captured image saved successfully: {image_path}")
+            return image_path
+
+        elif hasattr(image_data, "filename"):  
+            #  Uploaded File
+            if not filename:
+                filename = image_data.filename
+            image_path = os.path.join(FACE_DATA_FOLDER, filename)
+            image_data.save(image_path)
+
+            print(f" Uploaded image saved successfully: {image_path}")
+            return image_path  
+
+        else:
+            print(" Error: Invalid image format provided.")
+            return None
 
     except Exception as e:
-        print(f"Error saving uploaded image: {e}")
+        print(f" Error saving uploaded image: {e}")
         return None
+
 
 def recognize_employee(image_data):
     """

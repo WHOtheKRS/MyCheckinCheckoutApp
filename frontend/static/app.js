@@ -14,7 +14,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e;
 
     const installButton = document.createElement('button');
-    installButton.textContent = '📲 Install App';
+    installButton.textContent = 'Install App';
     installButton.style.cssText = `
         position: fixed; bottom: 20px; left: 50%;
         transform: translateX(-50%);
@@ -26,14 +26,14 @@ window.addEventListener('beforeinstallprompt', (e) => {
     document.body.appendChild(installButton);
 
     installButton.addEventListener('click', () => {
-        installButton.style.display = 'none'; // Hide button
+        installButton.style.display = 'none';
         deferredPrompt.prompt();
 
         deferredPrompt.userChoice.then(choiceResult => {
             if (choiceResult.outcome === 'accepted') {
-                console.log("✅ User accepted A2HS prompt");
+                console.log("User accepted A2HS prompt");
             } else {
-                console.log("❌ User dismissed A2HS prompt");
+                console.log("User dismissed A2HS prompt");
             }
             deferredPrompt = null;
         });
@@ -41,5 +41,5 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 window.addEventListener('appinstalled', () => {
-    console.log("🎉 PWA Installed Successfully!");
+    console.log(" PWA Installed Successfully!");
 });

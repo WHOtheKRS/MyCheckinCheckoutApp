@@ -13,7 +13,7 @@ from backend.face_recognition import recognize_employee
 
 app = Flask(__name__)
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  
 app.secret_key = os.urandom(24)
 
 EMPLOYEE_CSV = "attendance.csv"
@@ -50,7 +50,7 @@ def favicon():
 
 def speak_message(text):
     try:
-        url = "https://api.elevenlabs.io/v1/text-to-speech/i4CzbCVWoqvD0P1QJCUL"
+        url = "https://api.elevenlabs.io/v1/text-to-speech/nPczCjzI2devNBz1zQrb"
         headers = {
             "xi-api-key": ELEVEN_LABS_API_KEY,
             "Content-Type": "application/json"
@@ -77,7 +77,7 @@ def speak_message(text):
             return url_for('static', filename='speech.mp3')  
 
         else:
-            print("❌ Error generating speech:", response.json())
+            print(" Error generating speech:", response.json())
             return None
     except Exception as e:
         print("Eleven Labs API Error:", e)
@@ -98,7 +98,7 @@ def employee_check():
             if not image_data:
                 return jsonify({"message": "No image provided!"}), 400
 
-            print("Received Image Data Successfully")  # Debugging Log
+            print("Received Image Data Successfully")  
 
             employee_id = recognize_employee(image_data)
 
@@ -169,18 +169,18 @@ def dashboard():
             "PAN Card": request.form["pan"],
         }
 
-        image_data = request.form.get("captured_image", "") 
-        uploaded_file = request.files.get("uploaded_image")  
+        image_data = request.form.get("captured_image", "")  # Captured Image (Base64)
+        uploaded_file = request.files.get("uploaded_image")  # Uploaded File
 
         if not image_data and not uploaded_file:
             return jsonify({"message": "Error: Please provide an image (capture or upload)."}), 400
 
-        # `save_employee_data()` from `register.py`
-        save_employee_data(employee_data, uploaded_file if uploaded_file else None)
+        save_employee_data(employee_data, image_data, uploaded_file)
 
         return jsonify({"message": "Employee registered successfully!"}), 200
 
     return render_template("dashboard.html")
+
 
 
 def save_base64_image(image_data, file_path):
