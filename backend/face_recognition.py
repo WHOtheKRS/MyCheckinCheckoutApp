@@ -13,7 +13,6 @@ def save_uploaded_image(image_data, filename=None):
             return None
 
         if isinstance(image_data, str) and image_data.startswith("data:image"):
-            #  Base64 image (Captured from Camera)
             image_bytes = base64.b64decode(image_data.split(",")[1])
             if not filename:
                 filename = "temp_image.jpg"
@@ -26,7 +25,6 @@ def save_uploaded_image(image_data, filename=None):
             return image_path
 
         elif hasattr(image_data, "filename"):  
-            #  Uploaded File
             if not filename:
                 filename = image_data.filename
             image_path = os.path.join(FACE_DATA_FOLDER, filename)
@@ -45,10 +43,7 @@ def save_uploaded_image(image_data, filename=None):
 
 
 def recognize_employee(image_data):
-    """
-    Recognizes an employee based on uploaded or captured image.
-    Uses multiple DeepFace models for robust recognition.
-    """
+
     temp_image_path = save_uploaded_image(image_data)
 
     if not temp_image_path:
@@ -56,13 +51,17 @@ def recognize_employee(image_data):
         return None
 
     recognized_employee = None  
-
-    deepface_models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "ArcFace"]
+    deepface_models = ["Facenet", "ArcFace"]
 
     for filename in os.listdir(FACE_DATA_FOLDER):
         stored_image_path = os.path.join(FACE_DATA_FOLDER, filename)
 
+        if filename == "temp_image.jpg":
+            continue  
+
         try:
+            match_results = {model: False for model in deepface_models}  # Store verification results
+
             for model in deepface_models:
                 result = DeepFace.verify(
                     img1_path=temp_image_path,
@@ -71,19 +70,18 @@ def recognize_employee(image_data):
                     enforce_detection=True  
                 )
 
+                match_results[model] = result["verified"]  
+
                 print(f"[{model}] Comparing with {stored_image_path}: Match = {result['verified']}")  
 
-                if result["verified"]:
-                    recognized_employee = os.path.splitext(filename)[0]  
-                    break  
-
-            if recognized_employee:
+            # **Require both models to return True before recognizing**
+            if all(match_results.values()):
+                recognized_employee = os.path.splitext(filename)[0]  
                 break  
 
         except Exception as e:
             print(f"Error recognizing face with {stored_image_path}: {e}")
 
-    # Clean up temporary file
     if os.path.exists(temp_image_path):
         os.remove(temp_image_path)
 
@@ -93,3 +91,4 @@ def recognize_employee(image_data):
 
     print("No matching face found.") 
     return None
+
