@@ -1,4 +1,4 @@
-const CACHE_NAME = "pwa-cache-v1";
+const CACHE_NAME = "pwa-cache-v2";  // Changed cache name to force update
 const urlsToCache = [
     "/",
     "/static/styles.css",
@@ -7,7 +7,9 @@ const urlsToCache = [
     "/static/smartphone-call.png"
 ];
 
+// Install Event: Cache Files
 self.addEventListener("install", (event) => {
+    self.skipWaiting();  // Force service worker to activate immediately
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log("Opened cache");
@@ -16,14 +18,18 @@ self.addEventListener("install", (event) => {
     );
 });
 
+// Fetch Event: Serve from network first, fallback to cache
 self.addEventListener("fetch", (event) => {
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
+        fetch(event.request)
+            .then((response) => {
+                return response;
+            })
+            .catch(() => caches.match(event.request)) 
     );
 });
 
+// Activate Event: Remove old caches
 self.addEventListener("activate", (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -35,7 +41,3 @@ self.addEventListener("activate", (event) => {
         })
     );
 });
-// Speeds up page load times by serving cached files.
-// Works offline (cached assets load even without internet).
-// Automatically updates when a new version is deployed.
-// Reduces server load by serving assets from the cache.

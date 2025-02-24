@@ -5,27 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Check-In/Out</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 flex items-center justify-center  font-roboto">
 
-    <div class="container">
-        <h2>Employee Check-In/Out</h2>
+    <div class="relative w-[700px] mt-8 mb-8  bg-[linear-gradient(to_right,#040A19,#222B80)] flex flex-col items-center justify-center  rounded-lg shadow-lg">
+
+        <div class="w-full pl-4">
+
+            <img src="{{ url_for('static', filename='logos/logo.png') }}" alt="logo" class=" w-[259px] h-[110.85px]"/>
+          </div>
+
+          <div class="w-[500px] h-[900px] mb-20  flex flex-col items-center justify-center rounded-[30px] bg-[#B8B8B880] p-10 flex flex-col items-center relative">
+          <button class="bg-[linear-gradient(to_right,#040A19,#222B80)] text-white w-[100px] h-[40px] rounded-[10px] font-bold absolute top-0 right-0 mt-2 mr-4" id="logout" onclick="window.location.href='/logout'">Log Out</button>
+
+          
+
+          <div class="flex flex-col gap-1 mt-8">
+            <video id="video" class="1image w-[250px] h-[190px] bg-gray-100" autoplay playsinline muted>
+                   
+            </video>
+
+            <button class="bg-[linear-gradient(to_right,#040A19,#222B80)] text-white w-[100px] h-[40px] rounded-[10px] font-bold mb-20 ml-20  mt-2 mr-4" id="capture">Capture</button>
+
+
+
+            <div class="1image w-[250px] h-[190px] bg-gray-100">
+                <div id="previewContainer" style="display: none;">
+                    <!-- <p>Captured Image:</p> -->
+                    <img id="capturedImage" src="" alt="Captured Image">
+                </div>
+                <input type="hidden" id="captured_image">
+        
+            </div>
+
+            <button class="bg-[linear-gradient(to_right,#040A19,#222B80)] text-white w-[100px] h-[40px] rounded-[10px] font-bold mb-20 ml-20  mt-2 mr-4" id="submit" style="display: none;">Submit</button>
+            
+      </div>
+
+
+
 
         
-        <video id="video" width="300" height="250" autoplay playsinline muted></video>
 
         
-        <button id="capture">Capture Image</button>
 
-        <div id="previewContainer" style="display: none;">
-            <p>Captured Image:</p>
-            <img id="capturedImage" src="" alt="Captured Image">
-        </div>
-
-        <input type="hidden" id="captured_image">
-        <button id="submit" style="display: none;">Submit</button>
-        <button id="logout" onclick="window.location.href='/logout'">Logout</button>
+        
 
         <div id="message" style="margin-top: 10px; font-weight: bold;"></div>
 
@@ -40,6 +67,12 @@
         </div>
 
         <audio id="speechAudio" style="display: none;"></audio>
+
+
+
+
+    </div>
+
     </div>
 
     <script>
@@ -111,7 +144,7 @@
 
             captureBtn.style.display = "none";
             submitBtn.style.display = "none";
-            previewContainer.style.display = "none";
+            previewContainer.style.display = "block";
             messageDiv.innerHTML = ""; 
             video.style.display = "none"; 
             logoutBtn.style.display = "none"; 
@@ -149,6 +182,7 @@
             })
             .catch(error => console.error("Error submitting image:", error));
         });
+
     </script>
 </body>
 

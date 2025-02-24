@@ -1,3 +1,4 @@
+
 /* General Styling */
 body {
     font-family: 'Poppins', sans-serif;
@@ -26,27 +27,41 @@ h2 {
 }
 
 /* Video & Image Styling */
-video {
-    border-radius: 8px;
-    border: 2px solid #007bff;
-    width: 300px;
-    height: 250px;
+#video {
+    border-radius: 50%;
+    border: 2px solid white;
+    width: 168px;
+    height: 168px;
     object-fit: cover;
+    display: block;
 }
 
 #previewContainer {
     display: none;
     text-align: center;
-    margin-top: 10px;
+    position: relative;
+    /* margin-top: 10px; */
 }
 
 #capturedImage {
-    width: 300px;  /* Match video feed width */
-    height: 250px; /* Match video feed height */
-    border-radius: 8px;
+    width: 168px;  /* Match video feed width */
+    height: 168px; /* Match video feed height */
+    border-radius: 50%;
     border: 2px solid #ddd;
+    display: none; 
+    position: absolute;
+    top: 0;
+    left: 0;
     object-fit: cover; /* Ensure image fits properly */
 }
+
+#previewContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
 
 /* Button Styling */
 button {

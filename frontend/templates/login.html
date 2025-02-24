@@ -3,40 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='/styles.css') }}">
+    <title>Admin Login</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
-<body>
-    <div class="container">
-        <h2>Login</h2>
-        <form method="POST">
-            <input type="text" name="employee_id" placeholder="Employee ID" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
+<body class="bg-gray-100 flex items-center justify-center  font-roboto">
 
-        <button onclick="window.location.href='/employee_check'">Employee</button>
+  <div class="relative w-[800px] mt-8 mb-8  bg-[linear-gradient(to_right,#040A19,#222B80)] flex flex-col items-center justify-center  rounded-lg shadow-lg">
+    <div class="w-full pl-4">
 
-        <div id="errorContainer" style="display: none; text-align: center;">
-            <img src="{{ url_for('static', filename='error.gif') }}" alt="Error GIF" width="150">
-            <p style="color: red;">Invalid Credentials! Try again.</p>
+      <img src="{{ url_for('static', filename='logos/logo.png') }}" alt="logo" class=" w-[299px] h-[130.85px]"/>
+
+    </div>
+        
+        <div class="w-[500px] h-[700px] mb-20  flex flex-col items-center justify-center rounded-[30px] bg-[#B8B8B880] p-10 flex flex-col items-center">
+            <img src="{{ url_for('static', filename='logos/Frame 7.png') }}" alt="image" class="w-[150px]  h-[230px] mb-6"/>
+            
+            <form class="w-full flex flex-col items-center" method="POST" autocomplete="off">
+              <div class="relative w-[441px] mb-4">
+                <img src="{{ url_for('static', filename='logos/mdi_user.png') }}" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6"/>
+                <input type="text" placeholder="Username" autocomplete="off" name="employee_id"  class="w-full h-[60px] rounded-[10px] pl-12 p-4 text-[#222B80] placeholder-[#222B80] border border-gray-300"/>
+            </div>
+            
+            <div class="relative w-[441px] mb-4">
+              <img src="{{ url_for('static', filename='logos/mdi_password.png') }}" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6"/>
+              <input type="password" id="password" autocomplete="off" name="password" placeholder="Password" class="w-full h-[60px] rounded-[10px] pl-12 p-4 text-[#222B80] placeholder-[#222B80] border border-gray-300"/>
+              <span onclick="togglePassword()" class="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer">
+                  👁️
+              </span>
+          </div>
+             
+                
+                <button class="bg-[linear-gradient(to_right,#040A19,#222B80)] text-white w-[127px] h-[50px] rounded-[10px] font-bold mt-4">Log In</button>
+                <a href="/forgot-password" class="font-[16px] font-semibold mt-4 hover:underline">Forgot Password?</a>
+
+                
+            </form>
+            <button class="bg-[linear-gradient(to_right,#040A19,#222B80)] text-white w-[269px] h-[50px] rounded-[10px] font-bold mt-8 bottom-0" onclick="window.location.href='/employee_check'">Log In as Employee</button>
         </div>
     </div>
-
+    
     <script>
-        var showError = {{ 1 if error else 0 }};
-    
-        if (showError) {
-            let errorDiv = document.getElementById("errorContainer");
-            errorDiv.style.display = "block"; 
-    
-            setTimeout(() => {
-                errorDiv.style.display = "none";
-            }, 2000);
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+            } else {
+                passwordField.type = "password";
+            }
         }
-    </script>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
 
+        window.onload = function() {
+        localStorage.clear();
+        sessionStorage.clear();
+        setTimeout(() => {
+            document.querySelector("form").reset();
+            document.querySelector("[name='employee_id']").value = "";
+            document.querySelector("[name='password']").value = "";
+        }, 10);
+    };
+    </script>
 </body>
 </html>
+
+

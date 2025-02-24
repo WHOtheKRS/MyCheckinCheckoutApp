@@ -13,6 +13,8 @@ from backend.face_recognition import recognize_employee
 
 app = Flask(__name__)
 app = Flask(__name__, static_folder="static", template_folder="templates")
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["DEBUG"] = True  # Make sure debug mode is enabled
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  
 app.secret_key = os.urandom(24)
 
